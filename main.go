@@ -31,10 +31,18 @@ func main() {
 		src = ":80"
 	}
 
+	s, err := buildServer(src, dst)
+	if err != nil {
+		log.Fatal("Error building server:", err)
+	}
+	log.Fatal(s.ListenAndServe())
+}
+func buildServer(src string, dst string) (*http.Server, error) {
 	// Create destination url.
 	u, err := url.Parse(dst)
 	if err != nil {
 		log.Fatal("Error parsing destination url:", err)
+		return nil, err
 	}
 
 	// Create reverse proxy.
@@ -49,8 +57,7 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	log.Fatal(s.ListenAndServe())
+	return s, nil
 }
 
 // RoundTrip replaces DefaultTransport RoundTrip, contains the Request and Response dumps.
